@@ -52,9 +52,12 @@
   <ItemGroup>
     <Compile Include="Objects\ApiLimits.cs" />
     <Compile Include="Objects\AvailableResources.cs" />
+    <Compile Include="Objects\OAuthObjects.cs" />
+    <Compile Include="Objects\RestServices.cs" />
     <Compile Include="Objects\SfdcApexWsdlObjects.cs" />
     <Compile Include="Objects\SfdcMetadataWsdlObjects.cs" />
     <Compile Include="Objects\SfdcSOAPWsdlObjects.cs" />
+    <Compile Include="Objects\SObjects.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingArgsAndEvents.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingEnums.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingHeaders.cs" />

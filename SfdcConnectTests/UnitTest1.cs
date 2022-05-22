@@ -39,7 +39,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SfdcConnectionUriParameter()
         {
-            SfdcConnection conn = new SfdcConnection(string.Format("https://test.salesforce.com/services/Soap/u/{0}.0/", 36));
+            SfdcConnection conn = new SfdcConnection(string.Format("https://login.salesforce.com/services/Soap/u/{0}.0/", 36));
 
             conn.Username = username;
             conn.Password = password;
@@ -53,7 +53,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SfdcConnectionTestAndVersionParameters()
         {
-            SfdcConnection conn = new SfdcConnection(true, 36);
+            SfdcConnection conn = new SfdcConnection(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -87,7 +87,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SfdcConnectionUriParameterAsync()
         {
-            SfdcConnection conn = new SfdcConnection(string.Format("https://test.salesforce.com/services/Soap/u/{0}.0", 36));
+            SfdcConnection conn = new SfdcConnection(string.Format("https://login.salesforce.com/services/Soap/u/{0}.0", 36));
 
             conn.Username = username;
             conn.Password = password;
@@ -112,7 +112,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SfdcConnectionUriParameterAsyncSpecifyFunction()
         {
-            SfdcConnection conn = new SfdcConnection(string.Format("https://test.salesforce.com/services/Soap/u/{0}.0", 36));
+            SfdcConnection conn = new SfdcConnection(string.Format("https://login.salesforce.com/services/Soap/u/{0}.0", 36));
 
             conn.Username = username;
             conn.Password = password;
@@ -143,7 +143,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SfdcConnectionTestAndVersionParametersAsync()
         {
-            SfdcConnection conn = new SfdcConnection(true, 36);
+            SfdcConnection conn = new SfdcConnection(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -189,7 +189,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public async Task SfdcConnectionUriParameterAwaitAsync()
         {
-            SfdcConnection conn = new SfdcConnection(string.Format("https://test.salesforce.com/services/Soap/u/{0}.0", 36));
+            SfdcConnection conn = new SfdcConnection(string.Format("https://login.salesforce.com/services/Soap/u/{0}.0", 36));
 
             conn.Username = username;
             conn.Password = password;
@@ -214,7 +214,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public async Task SfdcConnectionTestAndVersionParametersAwaitAsync()
         {
-            SfdcConnection conn = new SfdcConnection(true, 36);
+            SfdcConnection conn = new SfdcConnection(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -243,7 +243,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void SoapApiTest()
         {
-            SfdcSoapApi conn = new SfdcSoapApi(true, 36);
+            SfdcSoapApi conn = new SfdcSoapApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -259,7 +259,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void RestApiTest()
         {
-            SfdcRestApi conn = new SfdcRestApi(true, 36);
+            SfdcRestApi conn = new SfdcRestApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -273,9 +273,50 @@ namespace SfdcConnectTests
         }
 
         [TestMethod]
+        public void RestApiTest_Password()
+        {
+            SfdcRestApi conn = new SfdcRestApi(false, 54);
+
+            conn.Username = username;
+            conn.Password = password;
+            conn.Token = token;
+            conn.ClientId = "3MVG9szVa2RxsqBaFfy.QEDHf2rObjsuJtd0nc8Ryq4LXX7Ylm9Pn30kHuj1sU_4FFQaOFqcrpp95xWUEV24S";
+            conn.ClientSecret = "D8D46B150BBD86DA71B1B7F49507C8D97894E98ECC80E673785C4293CA8B111B";
+
+            conn.Open();
+
+            Assert.IsTrue(!string.IsNullOrEmpty(conn.SessionId));
+
+            conn.Close();
+
+            Assert.IsTrue(string.IsNullOrEmpty(conn.SessionId));
+        }
+
+        [TestMethod]
+        public void RestApiTest_Authorize()
+        {
+            SfdcRestApi conn = new SfdcRestApi(false, 54);
+
+            //conn.Username = username;
+            //conn.Password = password;
+            //conn.Token = token;
+            conn.ClientId = "3MVG9szVa2RxsqBaFfy.QEDHf2rObjsuJtd0nc8Ryq4LXX7Ylm9Pn30kHuj1sU_4FFQaOFqcrpp95xWUEV24S";
+            //conn.ClientSecret = "D8D46B150BBD86DA71B1B7F49507C8D97894E98ECC80E673785C4293CA8B111B";
+
+            conn.Open(SfdcConnect.Objects.LoginFlow.OAuthDesktop, "mystate");
+
+            Assert.IsTrue(!string.IsNullOrEmpty(conn.SessionId));
+            Assert.IsTrue(!string.IsNullOrEmpty(conn.RefreshToken));
+
+            conn.Close();
+
+            Assert.IsTrue(string.IsNullOrEmpty(conn.SessionId));
+        }
+
+        [TestMethod]
         public void MetadataApiTest()
         {
-            SfdcMetadataApi conn = new SfdcMetadataApi(true, 36);
+            SfdcMetadataApi conn = new SfdcMetadataApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -291,7 +332,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void ApexApiTest()
         {
-            SfdcApexApi conn = new SfdcApexApi(true, 36);
+            SfdcApexApi conn = new SfdcApexApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -308,7 +349,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void BulkApiTest()
         {
-            SfdcBulkApi conn = new SfdcBulkApi(true, 36);
+            SfdcBulkApi conn = new SfdcBulkApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -345,7 +386,7 @@ namespace SfdcConnectTests
                 if (batch.NumberRecordsProcessed > 0)
                 {
                     //zip file is downloaded to path
-                    string path = System.IO.Path.Combine(@"C:\Users\sfife\Desktop\MetaPedeDownloads", "Contact.zip");
+                    string path = System.IO.Path.Combine(@"C:\Users\Bunneyto\", "Contact.zip");
                     bool success = conn.GetQueryBatchResults(job, batch, path, true);
                 }
             }
@@ -354,7 +395,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void ApexRestTest()
         {
-            SfdcRestApi conn = new SfdcRestApi(true, 36);
+            SfdcRestApi conn = new SfdcRestApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
@@ -362,7 +403,7 @@ namespace SfdcConnectTests
 
             conn.Open();
 
-            string value = conn.CustomAPICall("mcjson/getJson", "POST", "{ \"userId\":\"0032C000005vCuM\" }", "application/json", "application/json");
+            string value = conn.CustomAPICallout("mcjson/getJson", "POST", "{ \"userId\":\"0032C000005vCuM\" }");
 
             conn.Close();
         }
@@ -370,7 +411,7 @@ namespace SfdcConnectTests
         [TestMethod]
         public void ToolingApiTest()
         {
-            SfdcToolingApi conn = new SfdcToolingApi(true, 36);
+            SfdcToolingApi conn = new SfdcToolingApi(false, 36);
 
             conn.Username = username;
             conn.Password = password;
