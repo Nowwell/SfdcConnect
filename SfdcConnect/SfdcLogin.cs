@@ -42,20 +42,24 @@ namespace SfdcConnect
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(location))]
     public class SfdcConnection : SfdcLoginBase
     {
-        public SfdcConnection() : base()
+        public SfdcConnection(string refreshToken = "") : base()
         {
+            RefreshToken = refreshToken;
+            lastStatusCode = HttpStatusCode.OK;
         }
-        public SfdcConnection(string uri) : base(uri)
+        public SfdcConnection(string uri, string refreshToken = "") : base(uri)
         {
+            RefreshToken = refreshToken;
+            lastStatusCode = HttpStatusCode.OK;
         }
-        public SfdcConnection(bool isTest, int apiversion) : base(isTest, apiversion)
+        public SfdcConnection(bool isTest, int apiversion, string refreshToken = "") : base(isTest, apiversion)
         {
-
+            RefreshToken = refreshToken;
+            lastStatusCode = HttpStatusCode.OK;
         }
-
 
         /// <summary>
-        /// Open a connection to Salesforce.  Requires Usernamd and Password to be filled in.
+        /// Open a connection to Salesforce with the SOAP API.  Requires Usernamd and Password to be filled in.
         /// </summary>
         public override void Open()
         {
@@ -91,6 +95,11 @@ namespace SfdcConnect
             state = ConnectionState.Open;
         }
 
+        /// <summary>
+        /// Opens a Connection to Salesforce with the specified login flow.
+        /// </summary>
+        /// <param name="flowType">SOAP, OAuth Desktop, OAuth username and password</param>
+        /// <param name="state">(optional) state parameter for OAuth flows</param>
         public void Open(Objects.LoginFlow flowType, string state = null)
         {
             Flow = flowType;

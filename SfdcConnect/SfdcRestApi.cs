@@ -35,21 +35,14 @@ namespace SfdcConnect
         public SfdcRestApi(string refreshToken = "")
             : base()
         {
-            RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
         }
         public SfdcRestApi(string uri, string refreshToken = "")
             : base(uri)
         {
-
-            RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
         }
         public SfdcRestApi(bool isTest, int apiversion, string refreshToken = "")
             : base(isTest, apiversion)
         {
-            RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
             Version = apiversion.ToString() + ".0";
         }
 
@@ -61,6 +54,12 @@ namespace SfdcConnect
         public AvailableResources AvailableResources { get; private set; }
         #endregion
 
+        /// <summary>
+        /// Generates a header for the If-Match or If-None-Match ETags
+        /// </summary>
+        /// <param name="etag">ETag</param>
+        /// <param name="matchType">Is-Math or If-None-Match</param>
+        /// <returns>Header for the supplied etags</returns>
         public string GenerateMatchHeader(string[] etag, Match matchType = Match.IfMatch)
         {
             string header = (matchType == Match.IfMatch ? "If-Match: " : "If-None-Match: ");
@@ -72,6 +71,12 @@ namespace SfdcConnect
             return header + string.Join(",", fullEtags);
         }
 
+        /// <summary>
+        /// Generates a header for the If-Modified-Since or If-Unmodified-Since headers
+        /// </summary>
+        /// <param name="date">Datetime to measure modification against</param>
+        /// <param name="modifiedtype">ModifiedSicne or UnmodifiedSince</param>
+        /// <returns>Header for the supplied DateTime</returns>
         public string GenerateModifiedHeader(DateTime date, Modified modifiedtype = Modified.ModifiedSince)
         {
             return (modifiedtype == Modified.ModifiedSince ? "If-Modified-Since: " : "If-Unmodified-Since: ") + ToSalesforceAPIHeaderDateTimeString(date);//.ToString("ddd, dd MMM yyyy HH:mm:ss z");
@@ -150,11 +155,9 @@ namespace SfdcConnect
             return apiLimits;
         }
 
-        public Objects.DescribeGlobalResult GetSObjects(DateTime date, Modified modifiedtype = Modified.ModifiedSince)
+        public Objects.DescribeGlobalResult GetSObjects(DateTime date, string[] additionalHeaders = null)
         {
-            string header = (modifiedtype == Modified.ModifiedSince?"If-Modified-Since: " : "If-Unmodified-Since: ") + ToSalesforceAPIHeaderDateTimeString(date);//.ToString("ddd, dd MMM yyyy HH:mm:ss z");
-
-            string whatsChanged = StandardAPICallout("sobjects", "GET", string.Empty, new string[] { header });
+            string whatsChanged = StandardAPICallout("sobjects", "GET", string.Empty, additionalHeaders);
 
             if (lastStatusCode == HttpStatusCode.NotModified)
             {
@@ -463,40 +466,40 @@ namespace SfdcConnect
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>JSON response from Salesforce</returns>
         public string StandardAPICallout(string endPoint, string method, string package, string[] additionalHeaders = null)
-    {
-        if (this.state != ConnectionState.Open)
         {
-            return "Connection closed";
-        }
-        //should this endPoint just be the entire uri? or perhaps just the location?
-        if (endPoint.Length > 0 && endPoint[0] != '/') endPoint = '/' + endPoint;
-        string url = baseUrl + string.Format("/services/data/v{0}{1}", Version, endPoint);
-
-        string returnValue = "";
-
-        try
-        {
-            returnValue = Callout(url, method, package, "application/json", "application/json", additionalHeaders);
-        }
-        catch (WebException ex)
-        {
-            if (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.Unauthorized)
+            if (this.state != ConnectionState.Open)
             {
-                this.state = ConnectionState.Closed;
-                Open(Flow);
-                if (this.state == ConnectionState.Open)
+                return "Connection closed";
+            }
+            //should this endPoint just be the entire uri? or perhaps just the location?
+            if (endPoint.Length > 0 && endPoint[0] != '/') endPoint = '/' + endPoint;
+            string url = baseUrl + string.Format("/services/data/v{0}{1}", Version, endPoint);
+
+            string returnValue = "";
+
+            try
+            {
+                returnValue = Callout(url, method, package, "application/json", "application/json", additionalHeaders);
+            }
+            catch (WebException ex)
+            {
+                if (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    returnValue = Callout(url, method, package, "application/json", "application/json", additionalHeaders);
+                    this.state = ConnectionState.Closed;
+                    Open(Flow);
+                    if (this.state == ConnectionState.Open)
+                    {
+                        returnValue = Callout(url, method, package, "application/json", "application/json", additionalHeaders);
+                    }
                 }
-            }
-            else
-            {
-                throw ex;
-            }
+                else
+                {
+                    throw ex;
+                }
 
+            }
+            return returnValue;
         }
-        return returnValue;
-    }
 
         /// <summary>
         /// Calls into Salesforce to make a call into one of the standard REST API endpoints
