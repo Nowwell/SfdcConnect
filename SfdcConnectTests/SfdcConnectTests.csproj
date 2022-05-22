@@ -65,6 +65,9 @@
       <Name>SfdcConnect</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="RestResourceClass.txt" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

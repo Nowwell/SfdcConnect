@@ -1,0 +1,10 @@
+﻿@RestResource(urlMapping='/mcjson/getJson/*')
+global class mcjson
+{
+    @HttpPost
+    global static void DoPost()
+    {
+        RestResponse res = RestContext.response;
+        res.StatusCode = 200;
+    }
+}

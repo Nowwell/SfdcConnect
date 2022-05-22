@@ -65,6 +65,9 @@ namespace SfdcConnect
             Version = apiversion.ToString();
         }
 
+        protected string baseUrl = "";
+        protected System.Net.HttpStatusCode lastStatusCode;
+
 
         /// <summary>
         /// Salesforce SessionId, only valid after Opening a connection
@@ -117,6 +120,27 @@ namespace SfdcConnect
         /// Uri used for the Metadata API
         /// </summary>
         public Uri MetadataEndPoint { get; protected set; }
+
+        /// <summary>
+        /// OAuth Refresh Token
+        /// </summary>
+        public string RefreshToken { get; protected set; }
+        /// <summary>
+        /// Callback Endpoint for OAuth. If unset, it will generate an endpoint on http://127.0.0.1 for a random port.
+        /// </summary>
+        protected string CallbackEndpoint;
+        /// <summary>
+        /// Determines which OAuth flow is being used, or if SOAP is used
+        /// </summary>
+        protected Objects.LoginFlow Flow;
+        /// <summary>
+        /// OAuth ClientId
+        /// </summary>
+        public string ClientId { get; set; }
+        /// <summary>
+        /// OAuth ClientSecret
+        /// </summary>
+        public string ClientSecret { get; set; }
 
 
 

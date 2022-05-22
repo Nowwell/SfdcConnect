@@ -1,5 +1,7 @@
 ﻿# SfdcConnect
 
+This is the continuation of the original version I put awhile ago on my employer related account: https://github.com/seanfifepep/SfdcConnect
+
 This is a collection of wrapper classes for the Salesforce Apis.  Currently implemented are:
 
 - SOAP API
@@ -33,7 +35,7 @@ The SfdcConnection object is not intended to be used by itself, it is the base c
   conn.Close();
 ```
 
-### Login in specifying if the Url the connection should use
+### Login in specifying the Url the connection should use
 ```C#
   SfdcConnection conn = new SfdcConnection(string.Format("https://test.salesforce.com/services/Soap/u/{0}.0/", 36));
 
@@ -189,7 +191,7 @@ The custom login completed function runs after the internal login completed func
   }
   else
   {
-    //There's no need to download an empty batch for a backup
+    //There's no need to download an empty batch
     if (batch.NumberRecordsProcessed > 0)
     {
         //zip file is downloaded to path

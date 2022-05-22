@@ -42,20 +42,5 @@ namespace SfdcConnectExamples
             Console.ReadKey();
         }
 
-        public static int FindAvailablePort()
-        {
-            //There has to be a better way to do this...
-            TcpListener server = new TcpListener(IPAddress.Parse("127.0.0.1"), 0);
-
-            server.Start();
-
-            int port = ((IPEndPoint)server.LocalEndpoint).Port;
-
-            server.Stop();
-
-            return port;
-        }
-
-
     }
 }
