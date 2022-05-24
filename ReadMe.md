@@ -9,10 +9,11 @@ This is a collection of wrapper classes for the Salesforce Apis.  Currently impl
 - Apex API
 - Bulk API
 - Tooling API
+- REST API
 
 Partially Implemented:
 
-- REST API
+- REST API Wrapper
 
 Written in C#.  Some of the code for the Bulk API implementation came from another source, I don't remember where.
 
@@ -96,6 +97,49 @@ The custom login completed function runs after the internal login completed func
   await conn.OpenAsync(cancelToken);
 ```
 
+### Login in with OAuth password flow
+```C#
+  SfdcConnection conn = new SfdcConnection(true, 36);
+
+  conn.Username = username;
+  conn.Password = password;
+  conn.Token = token;
+  conn.ClientId = client_id;
+  conn.ClientSecret = client_secret;
+
+  conn.Open(LoginFlow.OAuthPassword);
+
+  conn.Close();
+```
+
+### Login in with OAuth Authorize flow
+```C#
+  SfdcConnection conn = new SfdcConnection(true, 36);
+
+  conn.ClientId = client_id;
+  conn.ClientSecret = client_secret;//Optional
+
+  conn.Open(LoginFlow.OAuthDesktop, optionalState);
+
+  string refreshToken = conn.RefreshToken;
+
+  conn.Close();
+ 
+```
+
+### Login in with a OAuth Refresh Token flow
+```C#
+  SfdcConnection conn = new SfdcConnection(true, 36, refreshToken);
+
+  conn.ClientId = client_id;
+  conn.ClientSecret = client_secret;//Optional
+
+  conn.Open(LoginFlow.OAuthDesktop);
+
+  conn.Close();
+ 
+```
+
 ## API Examples
 ### SOAP API Example
 ```C#
@@ -105,7 +149,7 @@ The custom login completed function runs after the internal login completed func
   conn.Password = password;
   conn.Token = token;
 
-  conn.Open();
+  conn.Open(LoginFlow.SOAP);//LoginFlow.SOAP is the default value and is not required
 
   SfdcConnect.SoapObjects.DescribeSObjectResult result = conn.describeSObject("Contact");
 
@@ -119,11 +163,38 @@ The custom login completed function runs after the internal login completed func
   conn.Username = username;
   conn.Password = password;
   conn.Token = token;
+  conn.ClientId = client_id;
+  conn.ClientSecret = client_secret;
 
-  conn.Open();
+  conn.Open(LoginFlow.OAuthPassword);
 
-  ApiLimits result = conn.GetLimits(true);
+  byte[] data = conn.GetBlobField("Document", "0151K0000049Z6PQAU", "body");
 
+  using(BinaryWriter output = new BinaryWriter(File.OpenWrite(@"document.docx")))
+  {
+      output.Write(data, 0, data.Length);
+      output.Flush();
+  }
+  
+  conn.Close();
+```
+
+### REST API Wrapper Example
+```C#
+  SfdcRestApi api = new SfdcRestApi(true, 36);
+
+  api.Username = username;
+  api.Password = password;
+  api.Token = token;
+  api.ClientId = client_id;
+  api.ClientSecret = client_secret;
+
+  api.Open(LoginFlow.OAuthPassword);
+
+  SfdcRestApiWrapper conn = new SfdcRestApiWrapper(api);
+
+  QueryResult qr = conn.Query("SELECT Id, Name FROM Account");
+  
   conn.Close();
 ```
 
