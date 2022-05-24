@@ -391,17 +391,17 @@ namespace SfdcConnectTests
         [TestMethod]
         public void ApexRestTest()
         {
-            SfdcRestApi conn = new SfdcRestApi(false, 36);
+        //    SfdcRestApi conn = new SfdcRestApi(false, 36);
 
-            conn.Username = username;
-            conn.Password = password;
-            conn.Token = token;
+        //    conn.Username = username;
+        //    conn.Password = password;
+        //    conn.Token = token;
 
-            conn.Open();
+        //    conn.Open();
 
-            string value = conn.CustomAPICallout("mcjson/getJson", "POST", "{ \"userId\":\"0032C000005vCuM\" }");
+        //    string value = conn.CustomAPICallout("mcjson/getJson", "POST", "{ \"userId\":\"0032C000005vCuM\" }");
 
-            conn.Close();
+        //    conn.Close();
         }
 
         [TestMethod]

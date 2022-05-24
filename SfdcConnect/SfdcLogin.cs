@@ -45,17 +45,17 @@ namespace SfdcConnect
         public SfdcConnection(string refreshToken = "") : base()
         {
             RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
+            LastStatusCode = HttpStatusCode.OK;
         }
         public SfdcConnection(string uri, string refreshToken = "") : base(uri)
         {
             RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
+            LastStatusCode = HttpStatusCode.OK;
         }
         public SfdcConnection(bool isTest, int apiversion, string refreshToken = "") : base(isTest, apiversion)
         {
             RefreshToken = refreshToken;
-            lastStatusCode = HttpStatusCode.OK;
+            LastStatusCode = HttpStatusCode.OK;
         }
 
         /// <summary>
@@ -102,6 +102,7 @@ namespace SfdcConnect
         /// <param name="state">(optional) state parameter for OAuth flows</param>
         public void Open(Objects.LoginFlow flowType, string state = null)
         {
+            this.state = ConnectionState.Connecting;
             Flow = flowType;
             if (flowType == Objects.LoginFlow.SOAP)
             {
@@ -221,7 +222,7 @@ namespace SfdcConnect
                 OAuthResponse returnValue = null;
                 using (HttpWebResponse response = (HttpWebResponse)webrequest.GetResponse())
                 {
-                    lastStatusCode = response.StatusCode;
+                    LastStatusCode = response.StatusCode;
                     using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                     {
                         returnValue = JsonConvert.DeserializeObject<OAuthResponse>(resp.ReadToEnd());
@@ -264,7 +265,7 @@ namespace SfdcConnect
             OAuthResponse returnValue = null;
             using (HttpWebResponse response = (HttpWebResponse)webrequest.GetResponse())
             {
-                lastStatusCode = response.StatusCode;
+                LastStatusCode = response.StatusCode;
                 using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                 {
                     returnValue = JsonConvert.DeserializeObject<OAuthResponse>(resp.ReadToEnd());
@@ -277,6 +278,7 @@ namespace SfdcConnect
                     ApiEndPoint = new Uri(returnValue.instance_url);
                     baseUrl = "https://" + ApiEndPoint.Host;
                     RefreshToken = returnValue.refresh_token;
+                    identityEndpoint = returnValue.id;
                     this.state = ConnectionState.Open;
                     LoginTime = DateTime.Now;
                 }
@@ -335,75 +337,70 @@ namespace SfdcConnect
                 return "HttpListener is not supported";
             }
 
-            try
+            HttpListener server = new HttpListener();
+            server.Prefixes.Add(request.redirect_uri);
+            server.Start();
+
+            //Open the browser to the Auth endpoint
+            //TODO Make this process start async
+            Uri endpoint = new Uri(Url);
+            System.Diagnostics.Process.Start(string.Format("{0}://{1}/services/oauth2/authorize?{2}", endpoint.Scheme, endpoint.Host, request.ToString()));
+
+            // Waits for the the user to go through and approve the app
+            HttpListenerContext context = server.GetContext();
+
+            HttpListenerResponse response = context.Response;
+            string basicPage = "<html><head></head><body>{0}</body></html>";
+            string responsePage = "";
+
+            // get the code and save the state, if it exists
+            string code = context.Request.QueryString.Get("code");
+            string state = context.Request.QueryString.Get("state");
+
+            responsePage = string.Format(basicPage, "You can close this browser and return to the app");
+            // Checks for errors.
+            string error = "";
+            if (context.Request.QueryString.Get("error") != null)
             {
-                HttpListener server = new HttpListener();
-                server.Prefixes.Add(request.redirect_uri);
-                server.Start();
-
-                //Open the browser to the Auth endpoint
-                //TODO Make this process start async
-                Uri endpoint = new Uri(Url);
-                System.Diagnostics.Process.Start(string.Format("{0}://{1}/services/oauth2/authorize?{2}", endpoint.Scheme, endpoint.Host, request.ToString()));
-
-                // Waits for the the user to go through and approve the app
-                HttpListenerContext context = server.GetContext();
-
-                HttpListenerResponse response = context.Response;
-                string basicPage = "<html><head></head><body>{0}</body></html>";
-                string responsePage = "";
-
-                // get the code and save the state, if it exists
-                string code = context.Request.QueryString.Get("code");
-                string state = context.Request.QueryString.Get("state");
-
-                responsePage = string.Format(basicPage, "You can close this browser and return to the app");
-                // Checks for errors.
-                string error = "";
-                if (context.Request.QueryString.Get("error") != null)
-                {
-                    responsePage = string.Format(basicPage, "There was an error with your request.");
-                    error = context.Request.QueryString.Get("error");
-                }
-                if (code == null || state == null)
-                {
-                    responsePage = string.Format(basicPage, "We were unable to authorize you at this time.");
-                    error = "Error: Bad code or state";
-                }
-                if (state != request.state)
-                {
-                    responsePage = string.Format(basicPage, "There was a problem with your request.");
-                    error = "Bad state";
-                }
-
-                //Show the page to the user and shut down the temporary http server
-                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responsePage);
-                response.ContentLength64 = buffer.Length;
-                response.OutputStream.Write(buffer, 0, buffer.Length);
-                response.OutputStream.Flush();
-                response.Close();
-                server.Stop();
-
-                if (error != "")
-                {
-                    this.state = ConnectionState.Closed;
-                    return error;
-                }
-
-                //do the code exchange: code -> token
-                OAuthResponse resp = OAuthCodeToToken(code, request.redirect_uri);
-                SessionId = resp.access_token;
-                ServerUrl = resp.instance_url;
-                ApiEndPoint = new Uri(resp.instance_url);
-                baseUrl = "https://" + ApiEndPoint.Host;
-                RefreshToken = resp.refresh_token;
-                this.state = ConnectionState.Open;
-                LoginTime = DateTime.Now;
+                responsePage = string.Format(basicPage, "There was an error with your request.");
+                error = context.Request.QueryString.Get("error");
             }
-            catch(Exception e)
+            if (code == null || state == null)
             {
-                string error = e.Message;
+                responsePage = string.Format(basicPage, "We were unable to authorize you at this time.");
+                error = "Error: Bad code or state";
             }
+            if (state != request.state)
+            {
+                responsePage = string.Format(basicPage, "There was a problem with your request.");
+                error = "Bad state";
+            }
+
+            //Show the page to the user and shut down the temporary http server
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responsePage);
+            response.ContentLength64 = buffer.Length;
+            response.OutputStream.Write(buffer, 0, buffer.Length);
+            response.OutputStream.Flush();
+            response.Close();
+            server.Stop();
+
+            if (error != "")
+            {
+                this.state = ConnectionState.Closed;
+                return error;
+            }
+
+            //do the code exchange: code -> token
+            OAuthResponse resp = OAuthCodeToToken(code, request.redirect_uri);
+            SessionId = resp.access_token;
+            ServerUrl = resp.instance_url;
+            ApiEndPoint = new Uri(resp.instance_url);
+            baseUrl = "https://" + ApiEndPoint.Host;
+            RefreshToken = resp.refresh_token;
+            identityEndpoint = resp.id;
+            this.state = ConnectionState.Open;
+            LoginTime = DateTime.Now;
+
             return SessionId;
         }
 
@@ -435,7 +432,7 @@ namespace SfdcConnect
             OAuthResponse returnValue = null;
             using (HttpWebResponse response = (HttpWebResponse)webrequest.GetResponse())
             {
-                lastStatusCode = response.StatusCode;
+                LastStatusCode = response.StatusCode;
                 using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                 {
                     returnValue = JsonConvert.DeserializeObject<OAuthResponse>(resp.ReadToEnd());
@@ -473,7 +470,7 @@ namespace SfdcConnect
             OAuthResponse returnValue = null;
             using (HttpWebResponse response = (HttpWebResponse)webrequest.GetResponse())
             {
-                lastStatusCode = response.StatusCode;
+                LastStatusCode = response.StatusCode;
                 using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                 {
                     returnValue = JsonConvert.DeserializeObject<OAuthResponse>(resp.ReadToEnd());
@@ -483,6 +480,7 @@ namespace SfdcConnect
                     ServerUrl = returnValue.instance_url;
                     ApiEndPoint = new Uri(returnValue.instance_url);
                     baseUrl = "https://" + ApiEndPoint.Host;
+                    identityEndpoint = returnValue.id;
                     LoginTime = DateTime.Now;
                 }
             }

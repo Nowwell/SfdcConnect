@@ -72,6 +72,7 @@
     <Compile Include="SfdcLoginBase.cs" />
     <Compile Include="SfdcMetadataApi.cs" />
     <Compile Include="SfdcRestApi.cs" />
+    <Compile Include="SfdcRestApiWrapper.cs" />
     <Compile Include="SfdcSoapApi.cs" />
     <Compile Include="SfdcToolingApi.cs" />
   </ItemGroup>

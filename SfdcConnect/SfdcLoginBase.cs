@@ -66,8 +66,7 @@ namespace SfdcConnect
         }
 
         protected string baseUrl = "";
-        protected System.Net.HttpStatusCode lastStatusCode;
-
+        protected string identityEndpoint;
 
         /// <summary>
         /// Salesforce SessionId, only valid after Opening a connection
@@ -111,6 +110,10 @@ namespace SfdcConnect
         {
             get { return state; }
         }
+        /// <summary>
+        /// The last HTTP Status Code
+        /// </summary>
+        public System.Net.HttpStatusCode LastStatusCode { get; protected set; }
 
         /// <summary>
         /// Uri used for the REST API
@@ -132,7 +135,7 @@ namespace SfdcConnect
         /// <summary>
         /// Determines which OAuth flow is being used, or if SOAP is used
         /// </summary>
-        protected Objects.LoginFlow Flow;
+        public Objects.LoginFlow Flow { get; protected set; }
         /// <summary>
         /// OAuth ClientId
         /// </summary>
