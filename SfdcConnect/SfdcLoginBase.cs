@@ -128,7 +128,7 @@ namespace SfdcConnect
         /// <summary>
         /// Callback Endpoint for OAuth. If unset, it will generate an endpoint on http://127.0.0.1 for a random port.
         /// </summary>
-        protected string CallbackEndpoint;
+        public string CallbackEndpoint;
         /// <summary>
         /// Determines which OAuth flow is being used, or if SOAP is used
         /// </summary>

@@ -57,7 +57,7 @@
     <Compile Include="Objects\SfdcApexWsdlObjects.cs" />
     <Compile Include="Objects\SfdcMetadataWsdlObjects.cs" />
     <Compile Include="Objects\SfdcSOAPWsdlObjects.cs" />
-    <Compile Include="Objects\SObjects.cs" />
+    <Compile Include="Objects\RestApiObjects.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingArgsAndEvents.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingEnums.cs" />
     <Compile Include="Objects\Tooling\SfdcToolingHeaders.cs" />

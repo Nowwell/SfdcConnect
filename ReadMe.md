@@ -1,6 +1,6 @@
 ﻿# SfdcConnect
 
-This is the continuation of the original version I put awhile ago on my employer related account: https://github.com/seanfifepep/SfdcConnect
+This is the continuation of the original version I put up awhile ago on an account related to a previous employer: https://github.com/seanfifepep/SfdcConnect
 
 This is a collection of wrapper classes for the Salesforce Apis.  Currently implemented are:
 
@@ -8,16 +8,17 @@ This is a collection of wrapper classes for the Salesforce Apis.  Currently impl
 - Metadata API
 - Apex API
 - Bulk API
+- Tooling API
 
 Partially Implemented:
 
 - REST API
 
-Written in C#.  Some of the code for the Bulk API implementation come from another source, I don't remember where.
+Written in C#.  Some of the code for the Bulk API implementation came from another source, I don't remember where.
 
 # Usage
 
-The SfdcConnection object is not intended to be used by itself, it is the base class for the other API objects that handles login and logout.
+The SfdcConnection object is not intended to be used by itself, it is the base class for the other API objects that handle login and logout.
 
 
 ## Login Examples

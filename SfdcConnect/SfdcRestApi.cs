@@ -33,15 +33,15 @@ namespace SfdcConnect
     public class SfdcRestApi : SfdcConnection
     {
         public SfdcRestApi(string refreshToken = "")
-            : base()
+            : base(refreshToken)
         {
         }
         public SfdcRestApi(string uri, string refreshToken = "")
-            : base(uri)
+            : base(uri, refreshToken)
         {
         }
         public SfdcRestApi(bool isTest, int apiversion, string refreshToken = "")
-            : base(isTest, apiversion)
+            : base(isTest, apiversion, refreshToken)
         {
             Version = apiversion.ToString() + ".0";
         }
@@ -132,7 +132,7 @@ namespace SfdcConnect
                 using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                 {
                     AvailableResources = JsonConvert.DeserializeObject<AvailableResources>(resp.ReadToEnd());
-                    this.MetadataEndPoint = new Uri(AvailableResources["metadata"]);
+                    this.MetadataEndPoint = new Uri(baseUrl + AvailableResources["metadata"]);
                     returnValue = AvailableResources;
                 }
             }
@@ -155,7 +155,7 @@ namespace SfdcConnect
             return apiLimits;
         }
 
-        public Objects.DescribeGlobalResult GetSObjects(DateTime date, string[] additionalHeaders = null)
+        public Objects.DescribeGlobalResult GetGlobalDescribeByDate(DateTime date, string[] additionalHeaders = null)
         {
             string whatsChanged = StandardAPICallout("sobjects", "GET", string.Empty, additionalHeaders);
 
@@ -172,7 +172,7 @@ namespace SfdcConnect
             }
         }
 
-        public Objects.DescribeGlobalResult GetSObjects()
+        public Objects.DescribeGlobalResult GetGlobalDescribe()
         {
             return StandardAPICallout<Objects.DescribeGlobalResult>("sobjects", "GET", string.Empty);
         }
@@ -340,6 +340,11 @@ namespace SfdcConnect
             return StandardAPICallout<Objects.DeleteResult>(url, "DELETE", string.Empty, additionalHeaders);
         }
 
+        /// <summary>
+        /// Queries Salesforce using SOQL
+        /// </summary>
+        /// <param name="query">SOQL Query</param>
+        /// <returns>Query Results</returns>
         public Objects.QueryResult Query(string query)
         {
             string url = string.Format("query?q={0}", HttpUtility.UrlEncode(query));
@@ -347,6 +352,11 @@ namespace SfdcConnect
             return StandardAPICallout<Objects.QueryResult>(url, "GET", string.Empty);
         }
 
+        /// <summary>
+        /// Queries Salesforce using SOQL icluding deleted records
+        /// </summary>
+        /// <param name="query">SOQL Query</param>
+        /// <returns>Query Results</returns>
         public Objects.QueryResult QueryAll(string query)
         {
             string url = string.Format("queryAll?q={0}", HttpUtility.UrlEncode(query));
@@ -354,9 +364,14 @@ namespace SfdcConnect
             return StandardAPICallout<Objects.QueryResult>(url, "GET", string.Empty);
         }
 
-        public Objects.QueryResult QueryMore(string query)
+        /// <summary>
+        /// Gets the additinal results from a Query or QueryAll cal
+        /// </summary>
+        /// <param name="queryMore">Url provided by Salesforce to get more records in a SOQL query</param>
+        /// <returns>Query Results</returns>
+        public Objects.QueryResult QueryMore(string queryMore)
         {
-            return StandardAPICallout<Objects.QueryResult>(query, "GET", string.Empty, string.Empty, null);
+            return StandardAPICallout<Objects.QueryResult>(queryMore, "GET", string.Empty, string.Empty, null);
         }
 
 
@@ -620,6 +635,11 @@ namespace SfdcConnect
             }
 
             return returnValue;
+        }
+
+        public T Callout<T>(string endPoint, string method, string package, string contentType, string accept, string[] additionalHeaders = null)
+        {
+           return JsonConvert.DeserializeObject<T>(Callout(endPoint, method, package, contentType, accept, additionalHeaders));
         }
 
     }

@@ -10,11 +10,11 @@ namespace SfdcConnectTests
     [TestClass]
     public class ConnectionTests
     {
-        private string username = "";
-        private string password = "";
-        private string token = "";
-        private string clientId = "";
-        private string clientsecret = "";
+        public static string username = "";
+        public static string password = "";
+        public static string token = "";
+        public static string clientId = "";
+        public static string clientsecret = "";
 
         #region Login Tests
 

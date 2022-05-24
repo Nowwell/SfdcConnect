@@ -335,69 +335,75 @@ namespace SfdcConnect
                 return "HttpListener is not supported";
             }
 
-            HttpListener server = new HttpListener();
-            server.Prefixes.Add(request.redirect_uri);
-            server.Start();
-
-            //Open the browser to the Auth endpoint
-            //TODO Make this process start async
-            Uri endpoint = new Uri(Url);
-            System.Diagnostics.Process.Start(string.Format("{0}://{1}/services/oauth2/authorize?{2}", endpoint.Scheme, endpoint.Host, request.ToString()));
-
-            // Waits for the the user to go through and approve the app
-            HttpListenerContext context = server.GetContext();
-
-            HttpListenerResponse response = context.Response;
-            string basicPage = "<html><head></head><body>{0}</body></html>";
-            string responsePage = "";
-
-            // get the code and save the state, if it exists
-            string code = context.Request.QueryString.Get("code");
-            string state = context.Request.QueryString.Get("state");
-
-            responsePage = string.Format(basicPage, "You can close this browser and return to the app");
-            // Checks for errors.
-            string error = "";
-            if (context.Request.QueryString.Get("error") != null)
+            try
             {
-                responsePage = string.Format(basicPage, "There was an error with your request.");
-                error = context.Request.QueryString.Get("error");
+                HttpListener server = new HttpListener();
+                server.Prefixes.Add(request.redirect_uri);
+                server.Start();
+
+                //Open the browser to the Auth endpoint
+                //TODO Make this process start async
+                Uri endpoint = new Uri(Url);
+                System.Diagnostics.Process.Start(string.Format("{0}://{1}/services/oauth2/authorize?{2}", endpoint.Scheme, endpoint.Host, request.ToString()));
+
+                // Waits for the the user to go through and approve the app
+                HttpListenerContext context = server.GetContext();
+
+                HttpListenerResponse response = context.Response;
+                string basicPage = "<html><head></head><body>{0}</body></html>";
+                string responsePage = "";
+
+                // get the code and save the state, if it exists
+                string code = context.Request.QueryString.Get("code");
+                string state = context.Request.QueryString.Get("state");
+
+                responsePage = string.Format(basicPage, "You can close this browser and return to the app");
+                // Checks for errors.
+                string error = "";
+                if (context.Request.QueryString.Get("error") != null)
+                {
+                    responsePage = string.Format(basicPage, "There was an error with your request.");
+                    error = context.Request.QueryString.Get("error");
+                }
+                if (code == null || state == null)
+                {
+                    responsePage = string.Format(basicPage, "We were unable to authorize you at this time.");
+                    error = "Error: Bad code or state";
+                }
+                if (state != request.state)
+                {
+                    responsePage = string.Format(basicPage, "There was a problem with your request.");
+                    error = "Bad state";
+                }
+
+                //Show the page to the user and shut down the temporary http server
+                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responsePage);
+                response.ContentLength64 = buffer.Length;
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+                response.OutputStream.Flush();
+                response.Close();
+                server.Stop();
+
+                if (error != "")
+                {
+                    this.state = ConnectionState.Closed;
+                    return error;
+                }
+
+                //do the code exchange: code -> token
+                OAuthResponse resp = OAuthCodeToToken(code, request.redirect_uri);
+                SessionId = resp.access_token;
+                ServerUrl = resp.instance_url;
+                ApiEndPoint = new Uri(resp.instance_url);
+                baseUrl = "https://" + ApiEndPoint.Host;
+                RefreshToken = resp.refresh_token;
+                this.state = ConnectionState.Open;
+                LoginTime = DateTime.Now;
             }
-            if (code == null || state == null)
+            catch(Exception e)
             {
-                responsePage = string.Format(basicPage, "We were unable to authorize you at this time.");
-                error = "Error: Bad code or state";
+                string error = e.Message;
             }
-            if (state != request.state)
-            {
-                responsePage = string.Format(basicPage, "There was a problem with your request.");
-                error = "Bad state";
-            }
-
-            //Show the page to the user and shut down the temporary http server
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responsePage);
-            response.ContentLength64 = buffer.Length;
-            response.OutputStream.Write(buffer, 0, buffer.Length);
-            response.OutputStream.Flush();
-            response.Close();
-            server.Stop();
-
-            if (error != "")
-            {
-                this.state = ConnectionState.Closed;
-                return error;
-            }
-
-            //do the code exchange: code -> token
-            OAuthResponse resp = OAuthCodeToToken(code, request.redirect_uri);
-            SessionId = resp.access_token;
-            ServerUrl = resp.instance_url;
-            ApiEndPoint = new Uri(resp.instance_url);
-            baseUrl = "https://" + ApiEndPoint.Host;
-            RefreshToken = resp.refresh_token;
-            this.state = ConnectionState.Open;
-            LoginTime = DateTime.Now;
-
             return SessionId;
         }
 

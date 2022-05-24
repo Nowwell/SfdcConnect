@@ -1,4 +1,14 @@
-﻿using System;
+﻿/****************************************************************************
+*
+*   File name: DataObjects\RestApiObjects.cs
+*   Author: Sean Fife
+*   Create date: 5/21/2022
+*   Solution: SfdcConnect
+*   Project: SfdcConnect
+*   Description: Includes Objects returned from the REST API
+*
+****************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -83,8 +93,73 @@ namespace SfdcConnect.Objects
         public Dictionary<string, dynamic> record { get; set; }*/
     }
 
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+    public class Photos
+    {
+        public string picture { get; set; }
+        public string thumbnail { get; set; }
+    }
+
+    public class Identity
+    {
+        public string id { get; set; }
+        public bool asserted_user { get; set; }
+        public string user_id { get; set; }
+        public string organization_id { get; set; }
+        public string username { get; set; }
+        public string nick_name { get; set; }
+        public string display_name { get; set; }
+        public string email { get; set; }
+        public bool email_verified { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string timezone { get; set; }
+        public Photos photos { get; set; }
+        public object addr_street { get; set; }
+        public object addr_city { get; set; }
+        public object addr_state { get; set; }
+        public string addr_country { get; set; }
+        public object addr_zip { get; set; }
+        public string mobile_phone { get; set; }
+        public bool mobile_phone_verified { get; set; }
+        public bool is_lightning_login_user { get; set; }
+        public Status status { get; set; }
+        public Urls urls { get; set; }
+        public bool active { get; set; }
+        public string user_type { get; set; }
+        public string language { get; set; }
+        public string locale { get; set; }
+        public int utcOffset { get; set; }
+        public DateTime last_modified_date { get; set; }
+        public bool is_app_installed { get; set; }
+    }
+
+    public class Status
+    {
+        public object created_date { get; set; }
+        public object body { get; set; }
+    }
+
     public class Urls
     {
+        public string enterprise { get; set; }
+        public string metadata { get; set; }
+        public string partner { get; set; }
+        public string rest { get; set; }
+        public string sobjects { get; set; }
+        public string search { get; set; }
+        public string query { get; set; }
+        public string recent { get; set; }
+        public string tooling_soap { get; set; }
+        public string tooling_rest { get; set; }
+        public string profile { get; set; }
+        public string feeds { get; set; }
+        public string groups { get; set; }
+        public string users { get; set; }
+        public string feed_items { get; set; }
+        public string feed_elements { get; set; }
+        public string custom_domain { get; set; }
+
         public string rowTemplate { get; set; }
         public string describe { get; set; }
         public string sobject { get; set; }
@@ -101,6 +176,10 @@ namespace SfdcConnect.Objects
         public string uiEditTemplate { get; set; }
         public string uiNewRecord { get; set; }
     }
+
+
+
+
 
     public class ActionOverride
     {
