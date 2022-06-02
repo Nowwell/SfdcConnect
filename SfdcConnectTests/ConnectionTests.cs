@@ -285,7 +285,7 @@ namespace SfdcConnectTests
             conn.ClientId = clientId;
             conn.ClientSecret = clientsecret;
 
-            conn.Open(SfdcConnect.Objects.LoginFlow.OAuthPassword);
+            conn.Open(SfdcConnect.Objects.LoginFlow.OAuthUsernamePassword);
 
             Assert.IsTrue(!string.IsNullOrEmpty(conn.SessionId));
 

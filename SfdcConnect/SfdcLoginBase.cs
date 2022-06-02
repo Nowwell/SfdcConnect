@@ -9,9 +9,10 @@ using System.Web.Services.Protocols;
 
 namespace SfdcConnect
 {
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1038.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Web.Services.WebServiceBindingAttribute(Name = "SoapBinding", Namespace = "urn:partner.soap.sforce.com")]
     public class SfdcLoginBase : SoapHttpClientProtocol
     {
         public SfdcLoginBase()
@@ -128,6 +129,9 @@ namespace SfdcConnect
         /// OAuth Refresh Token
         /// </summary>
         public string RefreshToken { get; protected set; }
+
+        public string AssetToken { get; set; }
+
         /// <summary>
         /// Callback Endpoint for OAuth. If unset, it will generate an endpoint on http://127.0.0.1 for a random port.
         /// </summary>

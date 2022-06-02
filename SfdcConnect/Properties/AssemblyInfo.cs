@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SfdcConnect")]
 [assembly: AssemblyDescription("Salesforce wrapper classes for C#")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Pepperdine University")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SfdcConnect")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
