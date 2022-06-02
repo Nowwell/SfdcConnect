@@ -13979,7 +13979,7 @@ namespace Sfdc.Soap.Partner
         
         private string labelField;
         
-        private ListViewRecordColumn[] recordsField;
+        private ListViewRecordColumn[][] recordsField;
         
         private int sizeField;
         
@@ -14056,7 +14056,7 @@ namespace Sfdc.Soap.Partner
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayAttribute(Order=5)]
         [System.Xml.Serialization.XmlArrayItemAttribute("columns", typeof(ListViewRecordColumn[]), IsNullable=false)]
-        public ListViewRecordColumn[] records
+        public ListViewRecordColumn[][] records
         {
             get
             {

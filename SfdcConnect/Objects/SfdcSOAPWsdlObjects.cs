@@ -6588,7 +6588,7 @@ namespace SfdcConnect.SoapObjects
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute("columns", typeof(ListViewRecordColumn), IsNullable = false)]
+        [System.Xml.Serialization.XmlArrayItemAttribute("columns", typeof(ListViewRecordColumn[]), IsNullable = false)]
         public ListViewRecordColumn[][] records
         {
             get
