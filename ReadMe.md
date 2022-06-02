@@ -9,15 +9,16 @@ This is a collection of wrapper classes for the Salesforce Apis.  Currently impl
 - Apex API
 - Bulk API
 - Tooling API
-- REST API
 
 Partially Implemented:
 
-- REST API Wrapper
+- REST API
 
 Written in C#.  Some of the code for the Bulk API implementation came from another source, I don't remember where.
 
-# Usage
+There are two version of this dll in the project, one for the .NET Framework (versions 4.XX) and for the updated .NET version 5+ and .NET Core. You can change the target framework in each respective project to target which framework you need.
+
+# Usage (.NET Framework 4.X Version)
 
 The SfdcConnection object is not intended to be used by itself, it is the base class for the other API objects that handle login and logout.
 
@@ -271,4 +272,26 @@ The custom login completed function runs after the internal login completed func
         bool success = conn.GetQueryBatchResults(job, batch, path, true);
     }
   }
+```
+
+# Usage (All other .NET and Core Version)
+
+TODO
+
+## Login Examples
+
+### Login in OAuth Username and Password flow
+```C#
+  SfdcSession conn = new SfdcSession(Environment.Production, 54);
+
+  loginRequest request;
+
+  request.username = username;
+  request.password = password + token;
+  request.client_id = clientid;
+  request.client_secret = clientsecret;
+  
+  conn.Open(LoginFlow.OAuthUsernamePassword, request);
+
+  conn.Close();
 ```
