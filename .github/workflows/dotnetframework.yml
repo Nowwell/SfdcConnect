@@ -12,14 +12,23 @@ jobs:
     runs-on: windows-2019
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 4.5.x
-    - name: Restore dependencies
-      run: dotnet restore ./SfdcConnect.sln
-    - name: Build
-      run: dotnet build SfdcConnect/SfdcConnect.Framework.csproj --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    
+    - uses: actions/checkout@v2
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.5
+      
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Restore Packages
+      run: nuget restore ./SfdcConnect.sln
+    
+    - name: Build solution
+      run: msbuild SfdcConnect/SfdcConnect.Framework.csproj -t:rebuild -property:Configuration=Release  
+    
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal
