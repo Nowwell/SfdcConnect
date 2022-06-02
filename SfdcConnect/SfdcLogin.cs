@@ -66,6 +66,11 @@ namespace SfdcConnect
     //[System.Xml.Serialization.XmlIncludeAttribute(typeof(location))]
     public class SfdcConnection : SfdcLoginBase
     {
+        public SfdcConnection() : base()
+        {
+            LastStatusCode = HttpStatusCode.OK;
+        }
+
         public SfdcConnection(string refreshToken = "") : base()
         {
             RefreshToken = refreshToken;

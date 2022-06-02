@@ -18,7 +18,7 @@ Written in C#.  Some of the code for the Bulk API implementation came from anoth
 
 There are two version of this dll in the project, one for the .NET Framework (versions 4.XX) and for the updated .NET version 5+ and .NET Core. You can change the target framework in each respective project to target which framework you need.
 
-# Usage (.NET Framework 4.X Version)
+# Usage (.NET Framework 4.X Versions)
 
 The SfdcConnection object is not intended to be used by itself, it is the base class for the other API objects that handle login and logout.
 
@@ -274,17 +274,17 @@ The custom login completed function runs after the internal login completed func
   }
 ```
 
-# Usage (All other .NET and Core Version)
+# Usage (All other .NET and .NET Core Versions)
 
 TODO
 
 ## Login Examples
 
-### Login in OAuth Username and Password flow
+### Login with OAuth Username and Password flow
 ```C#
   SfdcSession conn = new SfdcSession(Environment.Production, 54);
 
-  loginRequest request;
+  loginRequest request = new loginRequest();
 
   request.username = username;
   request.password = password + token;
