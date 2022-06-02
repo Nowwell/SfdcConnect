@@ -2556,7 +2556,7 @@ namespace SfdcConnect
 
     private System.Threading.SendOrPostCallback describeNounsOperationCompleted;
 
-    private bool useDefaultCredentialsSetExplicitly;
+    private new bool useDefaultCredentialsSetExplicitly;
 
     /// <remarks/>
     //public SforceService()
@@ -2573,7 +2573,7 @@ namespace SfdcConnect
     //    }
     //}
 
-    public LoginScopeHeader LoginScopeHeaderValue
+    public new LoginScopeHeader LoginScopeHeaderValue
     {
         get
         {
@@ -2585,7 +2585,7 @@ namespace SfdcConnect
         }
     }
 
-    public CallOptions CallOptionsValue
+    public new CallOptions CallOptionsValue
     {
         get
         {
@@ -2597,7 +2597,7 @@ namespace SfdcConnect
         }
     }
 
-    public SessionHeader SessionHeaderValue
+    public new SessionHeader SessionHeaderValue
     {
         get
         {
@@ -2633,7 +2633,7 @@ namespace SfdcConnect
         }
     }
 
-    public LimitInfoHeader LimitInfoHeaderValue
+    public new LimitInfoHeader LimitInfoHeaderValue
     {
         get
         {
@@ -2833,7 +2833,7 @@ namespace SfdcConnect
     }
 
     /// <remarks/>
-    public event loginCompletedEventHandler loginCompleted;
+    public new event loginCompletedEventHandler loginCompleted;
 
     /// <remarks/>
     public event describeSObjectCompletedEventHandler describeSObjectCompleted;
@@ -2938,7 +2938,7 @@ namespace SfdcConnect
     public event convertLeadCompletedEventHandler convertLeadCompleted;
 
     /// <remarks/>
-    public event logoutCompletedEventHandler logoutCompleted;
+    public new event logoutCompletedEventHandler logoutCompleted;
 
     /// <remarks/>
     public event invalidateSessionsCompletedEventHandler invalidateSessionsCompleted;
@@ -3026,16 +3026,16 @@ namespace SfdcConnect
     [System.Web.Services.Protocols.SoapHeaderAttribute("LoginScopeHeaderValue")]
     [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
     [return: System.Xml.Serialization.XmlElementAttribute("result")]
-    public new LoginResult login(string username, string password)
+    public LoginResult login(string username, string password)
     {
         object[] results = this.Invoke("login", new object[] {
-                        username,
-                        password});
+                    username,
+                    password});
         return ((LoginResult)(results[0]));
     }
 
-    /// <remarks/>
-    public void loginAsync(string username, string password)
+        /// <remarks/>
+        public void loginAsync(string username, string password)
     {
         this.loginAsync(username, password, null);
     }
@@ -4534,7 +4534,7 @@ namespace SfdcConnect
     [System.Web.Services.Protocols.SoapHeaderAttribute("LimitInfoHeaderValue", Direction = System.Web.Services.Protocols.SoapHeaderDirection.Out)]
     [System.Web.Services.Protocols.SoapHeaderAttribute("SessionHeaderValue")]
     [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-    public new void logout()
+    public void logout()
     {
         this.Invoke("logout", new object[0]);
     }
@@ -5690,7 +5690,7 @@ namespace SfdcConnect
         base.CancelAsync(userState);
     }
 
-    private bool IsLocalFileSystemWebService(string url)
+    private new bool IsLocalFileSystemWebService(string url)
     {
         if (((url == null)
                     || (url == string.Empty)))

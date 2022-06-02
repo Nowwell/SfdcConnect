@@ -101,7 +101,7 @@ namespace SfdcConnect
             }
 
             Flow = Objects.LoginFlow.SOAP;
-            LoginResult loginResult = login(Username, Password + Token);
+            LoginResult loginResult = Login(Username, Password + Token);
 
             LoginTime = DateTime.Now;
             Url = loginResult.serverUrl;
@@ -278,7 +278,7 @@ namespace SfdcConnect
             {
                 Url = ServerUrl;
 
-                logout();
+                Logout();
 
                 state = ConnectionState.Closed;
             }
@@ -1063,17 +1063,17 @@ namespace SfdcConnect
         [SoapHeaderAttribute("CallOptionsValue")]
         [SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         [return: System.Xml.Serialization.XmlElementAttribute("result")]
-        public LoginResult login(string username, string password)
+        public LoginResult Login(string username, string password)
         {
             object[] results = this.Invoke("login", new object[] { username, password });
             return ((LoginResult)(results[0]));
         }
 
-        [SoapHeaderAttribute("SessionHeaderValue")]
-        [SoapHeaderAttribute("CallOptionsValue")]
-        [SoapHeaderAttribute("LimitInfoHeaderValue", Direction = SoapHeaderDirection.Out)]
-        [SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = SoapParameterStyle.Wrapped)]
-        public void logout()
+        [System.Web.Services.Protocols.SoapHeaderAttribute("CallOptionsValue")]
+        [System.Web.Services.Protocols.SoapHeaderAttribute("LimitInfoHeaderValue", Direction = System.Web.Services.Protocols.SoapHeaderDirection.Out)]
+        [System.Web.Services.Protocols.SoapHeaderAttribute("SessionHeaderValue")]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void Logout()
         {
             this.Invoke("logout", new object[0]);
         }
@@ -1081,7 +1081,9 @@ namespace SfdcConnect
         /// <remarks/>
         public void LoginAsync(string username, string password)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             this.LoginAsync(username, password, null);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
         /// <remarks/>
         public async Task LoginAsync(string username, string password, object userState)

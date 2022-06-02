@@ -154,10 +154,10 @@ namespace SfdcConnect
         private System.Threading.SendOrPostCallback upsertOperationCompleted;
 
         /// <remarks/>
-        public new event SfdcConnect.Tooling.loginCompletedEventHandler loginCompleted;
+        public event SfdcConnect.Tooling.loginCompletedEventHandler loginCompleted;
 
         /// <remarks/>
-        public new event SfdcConnect.Tooling.logoutCompletedEventHandler logoutCompleted;
+        public event SfdcConnect.Tooling.logoutCompletedEventHandler logoutCompleted;
 
         /// <remarks/>
         public event createCompletedEventHandler createCompleted;
@@ -239,7 +239,7 @@ namespace SfdcConnect
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:tooling.soap.sforce.com", ResponseNamespace = "urn:tooling.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         [return: System.Xml.Serialization.XmlElementAttribute("result")]
-        public new LoginResult login(string username, string password)
+        public LoginResult login(string username, string password)
         {
             object[] results = this.Invoke("login", new object[] {
                         username,
@@ -249,7 +249,7 @@ namespace SfdcConnect
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("SessionHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:tooling.soap.sforce.com", ResponseNamespace = "urn:tooling.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public new void logout()
+        public void logout()
         {
             this.Invoke("logout", new object[0]);
         }
