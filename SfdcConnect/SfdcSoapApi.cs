@@ -3026,7 +3026,7 @@ namespace SfdcConnect
     [System.Web.Services.Protocols.SoapHeaderAttribute("LoginScopeHeaderValue")]
     [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
     [return: System.Xml.Serialization.XmlElementAttribute("result")]
-    public LoginResult login(string username, string password)
+    public new LoginResult login(string username, string password)
     {
         object[] results = this.Invoke("login", new object[] {
                         username,
@@ -4534,7 +4534,7 @@ namespace SfdcConnect
     [System.Web.Services.Protocols.SoapHeaderAttribute("LimitInfoHeaderValue", Direction = System.Web.Services.Protocols.SoapHeaderDirection.Out)]
     [System.Web.Services.Protocols.SoapHeaderAttribute("SessionHeaderValue")]
     [System.Web.Services.Protocols.SoapDocumentMethodAttribute("", RequestNamespace = "urn:partner.soap.sforce.com", ResponseNamespace = "urn:partner.soap.sforce.com", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-    public void logout()
+    public new void logout()
     {
         this.Invoke("logout", new object[0]);
     }
