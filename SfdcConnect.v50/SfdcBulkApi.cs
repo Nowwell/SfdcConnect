@@ -27,7 +27,7 @@ namespace SfdcConnect
     public enum ContentType { None, CSV, XML, ZIP_CSV, ZIP_XML };
     public enum Operations { update, insert, upsert, delete, hardDelete, query };
     public enum ConcurrencyMode { Parallel, Serial };
-    public enum WebMethod { GET, POST, HEAD, DELETE };
+    public enum WebMethod { GET, POST, HEAD, DELETE, PUT, PATCH };
     public enum JobOperation { Query, Insert, Update, Delete, HardDelete, Upsert }
     public enum JobContentType { CSV, XML }
 

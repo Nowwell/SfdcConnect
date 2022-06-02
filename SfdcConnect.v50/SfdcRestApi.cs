@@ -37,11 +37,7 @@ namespace SfdcConnect
         {
             DataProtector = new SfdcDataProtection();
         }
-        public SfdcRestApi(string uri)
-        {
-            DataProtector = new SfdcDataProtection();
-        }
-        public SfdcRestApi(Environment env, int apiversion)
+        public SfdcRestApi(int apiversion)
         {
             DataProtector = new SfdcDataProtection();
             version = apiversion.ToString();
@@ -51,9 +47,6 @@ namespace SfdcConnect
         internal SfdcDataProtection DataProtector;
         protected string sessionId;
         protected string version;
-        protected Sfdc.Soap.Partner.loginResponse LastLoginResponse;
-        protected Sfdc.Soap.Partner.loginRequest LastLoginRequest;
-        protected System.ServiceModel.Description.ServiceEndpoint EndPoint;
         protected HttpStatusCode LastStatusCode;
 
         #region Variables
@@ -70,27 +63,25 @@ namespace SfdcConnect
         /// </summary>
         public Identity Identity { get; private set; }
 
+        public string Version
+        {
+            get { return version; }
+            set { version = value; }
+        }
         #endregion
 
-        public void Open(SfdcSession conn)
+        public void AttachSession(SfdcSession conn)
         {
             InternalConnection = conn;
 
             sessionId = DataProtector.Encrypt(conn.SessionId);
-            EndPoint.Address = new System.ServiceModel.EndpointAddress(conn.Endpoint.Address.Uri.AbsoluteUri);
-        }
-
-        public void Close()
-        {
-            InternalConnection.Close();
-            sessionId = "";
-            LastLoginResponse = null;
+            //EndPoint.Address = new System.ServiceModel.EndpointAddress(conn.Endpoint.Address.Uri.AbsoluteUri);
         }
 
         private Sfdc.Soap.Partner.SessionHeader GetSessionHeader()
         {
             Sfdc.Soap.Partner.SessionHeader sessionHeader = new Sfdc.Soap.Partner.SessionHeader();
-            sessionHeader.sessionId = DataProtector.Decrypt(sessionId);
+            sessionHeader.sessionId = InternalConnection.SessionId;
             return sessionHeader;
         }
 
@@ -103,7 +94,6 @@ namespace SfdcConnect
             MethodInfo method = typeof(XmlSerializer).GetMethod("set_Mode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             method.Invoke(null, new object[] { flag });
         }
-
 
         /// <summary>
         /// Generates a header for the If-Match or If-None-Match ETags
@@ -160,7 +150,7 @@ namespace SfdcConnect
         /// <returns>List of available services</returns>
         public List<RestServices> GetServices(bool automaticallySetToMostRecentversion = true)
         {
-            string url = this.EndPoint.Address.Uri.AbsoluteUri + string.Format("/services/data/");
+            string url = InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/data/");
             List<RestServices> returnValue = null;
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
@@ -191,7 +181,7 @@ namespace SfdcConnect
         {
             if (getFromServer)
             {
-                string url = this.EndPoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}", version);
+                string url = InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}", version);
                 AvailableResources returnValue = null;
 
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
@@ -206,7 +196,7 @@ namespace SfdcConnect
                     using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                     {
                         AvailableResources = JsonSerializer.Deserialize<AvailableResources>(resp.ReadToEnd());
-                        //this.MetadataEndPoint = new Uri(this.EndPoint.Address.Uri.AbsoluteUri + AvailableResources["metadata"]);
+                        //this.MetadataEndPoint = new Uri(InternalConnection.Endpoint.Address.Uri.AbsoluteUri + AvailableResources["metadata"]);
                         returnValue = AvailableResources;
                     }
                 }
@@ -225,7 +215,7 @@ namespace SfdcConnect
             {
                 //if (string.IsNullOrEmpty(identityEndpoint))
                 //{
-                Identity = Callout<Identity>(BuildUrlFromAvailableResources("identity"), "GET", string.Empty, "application/json", "application/json");
+                Identity = Callout<Identity>(BuildUrlFromAvailableResources("identity"), WebMethod.GET, string.Empty, "application/json", "application/json");
                 //}
                 //Identity = Callout<Identity>(identityEndpoint, "GET", string.Empty, "application/json", "application/json");
             }
@@ -241,7 +231,7 @@ namespace SfdcConnect
         {
             if (getFromServer)
             {
-                ApiLimits = Callout<ApiLimits>(BuildStandardUrl("limits"), "GET", string.Empty);
+                ApiLimits = Callout<ApiLimits>(BuildStandardUrl("limits"), WebMethod.GET, string.Empty);
             }
 
             return ApiLimits;
@@ -254,7 +244,7 @@ namespace SfdcConnect
         /// <returns>DescribeGlobalResult</returns>
         public DescribeGlobalResult GetGlobalDescribe()
         {
-            return Callout<DescribeGlobalResult>(BuildStandardUrl("sobjects"), "GET", string.Empty);
+            return Callout<DescribeGlobalResult>(BuildStandardUrl("sobjects"), WebMethod.GET, string.Empty);
         }
 
         /// <summary>
@@ -266,7 +256,7 @@ namespace SfdcConnect
         /// <returns>Binary blob data</returns>
         public byte[] GetBlobField(string objectApiName, string id, string blobFieldName)
         {
-            string url = this.EndPoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}/sobjects/{1}/{2}/{3}", version, objectApiName, id, blobFieldName);
+            string url = InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}/sobjects/{1}/{2}/{3}", version, objectApiName, id, blobFieldName);
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";
@@ -316,7 +306,7 @@ namespace SfdcConnect
         public string BuildUrlFromAvailableResources(string endPointName)
         {
             UriBuilder uri = new UriBuilder();
-            uri.Host = this.EndPoint.Address.Uri.AbsoluteUri;
+            uri.Host = InternalConnection.Endpoint.Address.Uri.AbsoluteUri;
             uri.Path = AvailableResources[endPointName];
             return uri.Uri.AbsoluteUri;
         }
@@ -329,7 +319,7 @@ namespace SfdcConnect
         public string BuildStandardUrl(string endPoint)
         {
             if (endPoint.Length > 0 && endPoint[0] != '/') endPoint = '/' + endPoint;
-            return this.EndPoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}{1}", version, endPoint);
+            return InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/data/v{0}{1}", version, endPoint);
         }
 
         /// <summary>
@@ -340,7 +330,7 @@ namespace SfdcConnect
         public string BuildCustomUrl(string endPoint)
         {
             if (endPoint.Length > 0 && endPoint[0] != '/') endPoint = '/' + endPoint;
-            return this.EndPoint.Address.Uri.AbsoluteUri + string.Format("/services/apexrest{0}", endPoint);
+            return InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/apexrest{0}", endPoint);
         }
 
         /// <summary>
@@ -353,10 +343,10 @@ namespace SfdcConnect
         /// <param name="accept">Accept header</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public string Callout(string endPoint, string method, string package, string contentType, string accept, string[] additionalHeaders = null)
+        public string Callout(string endPoint, WebMethod method, string package, string contentType, string accept, string[] additionalHeaders = null)
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(endPoint);
-            request.Method = method;
+            request.Method = method.ToString();
             request.ContentType = contentType;
             request.Accept = accept;
 
@@ -371,7 +361,7 @@ namespace SfdcConnect
             }
 
             //everything but get can have data to send
-            if (method.ToUpper() != "GET" && package.Trim().Length > 0)
+            if (method.ToString().ToUpper() != "GET" && package.Trim().Length > 0)
             {
                 byte[] buffer = null;
                 buffer = System.Text.Encoding.UTF8.GetBytes(package);
@@ -404,7 +394,7 @@ namespace SfdcConnect
         /// <param name="package">Payload for POST and PATCH requests, pass string.Empty if not needed</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public T Callout<T>(string endPoint, string method, string package, string[] additionalHeaders = null)
+        public T Callout<T>(string endPoint, WebMethod method, string package, string[] additionalHeaders = null)
         {
             return JsonSerializer.Deserialize<T>(Callout(endPoint, method, package, "application/json", "application/json", additionalHeaders));
         }
@@ -420,7 +410,7 @@ namespace SfdcConnect
         /// <param name="accept">Accept header</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public T Callout<T>(string endPoint, string method, string package, string contentType, string accept, string[] additionalHeaders = null)
+        public T Callout<T>(string endPoint, WebMethod method, string package, string contentType, string accept, string[] additionalHeaders = null)
         {
             return JsonSerializer.Deserialize<T>(Callout(endPoint, method, package, contentType, accept, additionalHeaders));
         }

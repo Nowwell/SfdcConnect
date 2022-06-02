@@ -2,6 +2,9 @@
 
 This is the continuation of the original version I put up awhile ago on an account related to a previous employer: https://github.com/seanfifepep/SfdcConnect
 
+![example workflow](https://github.com/github/docs/actions/workflows/dotnet.yml/badge.svg)
+![example workflow](https://github.com/github/docs/actions/workflows/dotnetframework.yml/badge.svg)
+
 This is a collection of wrapper classes for the Salesforce Apis.  Currently implemented are:
 
 - SOAP API

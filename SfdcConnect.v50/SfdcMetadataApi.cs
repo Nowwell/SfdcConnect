@@ -22,27 +22,9 @@ namespace SfdcConnect
 {
     public class SfdcMetadataApi : System.ServiceModel.ClientBase<MetadataPortType>
     {
-        public SfdcMetadataApi(EndpointConfiguration endpointConfiguration, string remoteAddress) :
-                 base(GetBindingForEndpoint(endpointConfiguration), new System.ServiceModel.EndpointAddress(remoteAddress))
+        public SfdcMetadataApi() :
+                 base()
         {
-            EndpointsList.Add(endpointConfiguration, remoteAddress);
-
-            Endpoint.Name = endpointConfiguration.ToString();
-
-            Channel = base.ChannelFactory.CreateChannel();
-
-            DataProtector = new SfdcDataProtection();
-
-            SetXmlSerializerFlag(1);
-        }
-        public SfdcMetadataApi(Environment env, int apiversion, string refreshToken = "") :
-                base(GetDefaultBinding(),
-                    new System.ServiceModel.EndpointAddress(string.Format("https://{0}.salesforce.com/services/Soap/m/{1}.0", env == Environment.Sandbox ? "test" : "login", apiversion)))
-        {
-            EndpointsList.Add(EndpointConfiguration.Login, string.Format("https://{0}.salesforce.com/services/Soap/m/{1}.0", env == Environment.Sandbox ? "test" : "login", apiversion));
-
-            Endpoint.Name = EndpointConfiguration.Login.ToString();
-
             Channel = base.ChannelFactory.CreateChannel();
 
             DataProtector = new SfdcDataProtection();
@@ -87,7 +69,7 @@ namespace SfdcConnect
             return sessionHeader;
         }
 
-        public void Open(SfdcSession conn)
+        public void AttachSession(SfdcSession conn)
         {
             InternalConnection = conn;
 
@@ -109,9 +91,10 @@ namespace SfdcConnect
             ((IClientChannel)Channel).Open();
         }
 
-        public new void Close()
+        public void Close(bool closeSessionToo = false)
         {
-            //InternalConnection.Close();
+            if (closeSessionToo) InternalConnection.Close();
+
             ((IClientChannel)Channel).Close();
         }
 
