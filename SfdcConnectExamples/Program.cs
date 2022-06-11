@@ -42,7 +42,7 @@ namespace SfdcConnectExamples
 
 
             ////SfdcConnection cc = new SfdcConnection();
-            ////cc.ClientId = "3MVG9szVa2RxsqBaFfy.QEDHf2rObjsuJtd0nc8Ryq4LXX7Ylm9Pn30kHuj1sU_4FFQaOFqcrpp95xWUEV24S";
+            ////cc.ClientId = "";
 
             ////X509Certificate2 cert = new X509Certificate2(@".\AssetTest.crt");
 
@@ -53,14 +53,14 @@ namespace SfdcConnectExamples
             ////bool isValid = cc.IsJwtValid(token, "private_clear.key", out securityToken);
 
 
-            //SfdcRestApi api = new SfdcRestApi(false, 54, "5Aep861HDR3iASSXIXYtJJZCaTqXAMEU3A5heF5vRKB4gsOW8Rj3VPWCgVwAWW82oimw1AoQvkSIcwFAELSQISu");
+            //SfdcRestApi api = new SfdcRestApi(false, 54, "");
             //SfdcRestApiWrapper conn = new SfdcRestApiWrapper(api);
 
-            //conn.RestApi.Username = "seanfife@hotmail.com";
-            //conn.RestApi.Password = "HH!F`@4*|YG";
-            //conn.RestApi.Token = "7aFGaJFyEsTT56wTsbY71J79d";
-            //conn.RestApi.ClientId = "3MVG9szVa2RxsqBaFfy.QEDHf2rObjsuJtd0nc8Ryq4LXX7Ylm9Pn30kHuj1sU_4FFQaOFqcrpp95xWUEV24S";
-            //conn.RestApi.ClientSecret = "D8D46B150BBD86DA71B1B7F49507C8D97894E98ECC80E673785C4293CA8B111B";
+            //conn.RestApi.Username = "";
+            //conn.RestApi.Password = "";
+            //conn.RestApi.Token = "";
+            //conn.RestApi.ClientId = "";
+            //conn.RestApi.ClientSecret = "";
 
 
             //conn.RestApi.CallbackEndpoint = "https://127.0.0.1:12345/";

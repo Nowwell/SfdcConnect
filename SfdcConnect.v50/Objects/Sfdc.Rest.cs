@@ -1278,21 +1278,21 @@
     }
     public class LoginResult
     {
-        public string code;
-        public string access_token;
-        public string signature;
-        public string scope;
-        public string id_token;
-        public string instance_url;
-        public string id;
-        public string token_type;
-        public string issued_at;
-        public string refresh_token;
-        public string error;
-        public string sfdc_site_url;
-        public string sfdc_site_id;
-        public string issued_token_type;
-        public string expires_in;
+        public string code { get; set; }
+        public string access_token { get; set; }
+        public string signature { get; set; }
+        public string scope { get; set; }
+        public string id_token { get; set; }
+        public string instance_url { get; set; }
+        public string id { get; set; }
+        public string token_type { get; set; }
+        public string issued_at { get; set; }
+        public string refresh_token { get; set; }
+        public string error { get; set; }
+        public string sfdc_site_url { get; set; }
+        public string sfdc_site_id { get; set; }
+        public string issued_token_type { get; set; }
+        public string expires_in { get; set; }
 
 
         internal void Encrypt(SfdcConnect.SfdcDataProtection service)

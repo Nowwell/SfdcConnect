@@ -22,6 +22,7 @@ using SfdcConnect.Rest;
 using System.Text.Json;
 using System.Reflection;
 using System.Xml.Serialization;
+using System.Net.Http;
 
 namespace SfdcConnect
 {
@@ -33,6 +34,8 @@ namespace SfdcConnect
     /// </summary>
     public class SfdcRestApi
     {
+        static readonly WebCallout client = new WebCallout();
+
         public SfdcRestApi()
         {
             DataProtector = new SfdcDataProtection();
@@ -49,7 +52,7 @@ namespace SfdcConnect
         protected string version;
         protected HttpStatusCode LastStatusCode;
 
-        #region Variables
+#region Variables
         /// <summary>
         /// API Limits state
         /// </summary>
@@ -68,7 +71,7 @@ namespace SfdcConnect
             get { return version; }
             set { version = value; }
         }
-        #endregion
+#endregion
 
         public void AttachSession(SfdcSession conn)
         {
@@ -150,24 +153,26 @@ namespace SfdcConnect
         /// <returns>List of available services</returns>
         public List<RestServices> GetServices(bool automaticallySetToMostRecentversion = true)
         {
-            string url = InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("/services/data/");
-            List<RestServices> returnValue = null;
+            string url = InternalConnection.Endpoint.Address.Uri.AbsoluteUri + string.Format("services/data/");
 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-            request.Method = "GET";
-            request.Accept = "application/json";
+            List<RestServices> returnValue = Callout<List<RestServices>>(url, HttpMethod.Get, "", "application/json", "application/json");
+            if (automaticallySetToMostRecentversion) version = returnValue[returnValue.Count - 1].version;
 
-            request.Headers.Add("Authorization: Bearer " + DataProtector.Decrypt(sessionId));
+            //HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+            //request.Method = "GET";
+            //request.Accept = "application/json";
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                LastStatusCode = response.StatusCode;
-                using (StreamReader resp = new StreamReader(response.GetResponseStream()))
-                {
-                    returnValue = JsonSerializer.Deserialize<List<RestServices>>(resp.ReadToEnd());
-                    if (automaticallySetToMostRecentversion) version = returnValue[returnValue.Count - 1].version;
-                }
-            }
+            //request.Headers.Add("Authorization: Bearer " + DataProtector.Decrypt(sessionId));
+
+            //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            //{
+            //    LastStatusCode = response.StatusCode;
+            //    using (StreamReader resp = new StreamReader(response.GetResponseStream()))
+            //    {
+            //        returnValue = JsonSerializer.Deserialize<List<RestServices>>(resp.ReadToEnd());
+            //        if (automaticallySetToMostRecentversion) version = returnValue[returnValue.Count - 1].version;
+            //    }
+            //}
 
             return returnValue;
         }
@@ -215,7 +220,7 @@ namespace SfdcConnect
             {
                 //if (string.IsNullOrEmpty(identityEndpoint))
                 //{
-                Identity = Callout<Identity>(BuildUrlFromAvailableResources("identity"), WebMethod.GET, string.Empty, "application/json", "application/json");
+                Identity = Callout<Identity>(BuildUrlFromAvailableResources("identity"), HttpMethod.Get, string.Empty, "application/json", "application/json");
                 //}
                 //Identity = Callout<Identity>(identityEndpoint, "GET", string.Empty, "application/json", "application/json");
             }
@@ -231,7 +236,7 @@ namespace SfdcConnect
         {
             if (getFromServer)
             {
-                ApiLimits = Callout<ApiLimits>(BuildStandardUrl("limits"), WebMethod.GET, string.Empty);
+                ApiLimits = Callout<ApiLimits>(BuildStandardUrl("limits"), HttpMethod.Get, string.Empty);
             }
 
             return ApiLimits;
@@ -244,7 +249,7 @@ namespace SfdcConnect
         /// <returns>DescribeGlobalResult</returns>
         public DescribeGlobalResult GetGlobalDescribe()
         {
-            return Callout<DescribeGlobalResult>(BuildStandardUrl("sobjects"), WebMethod.GET, string.Empty);
+            return Callout<DescribeGlobalResult>(BuildStandardUrl("sobjects"), HttpMethod.Get, string.Empty);
         }
 
         /// <summary>
@@ -343,40 +348,33 @@ namespace SfdcConnect
         /// <param name="accept">Accept header</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public string Callout(string endPoint, WebMethod method, string package, string contentType, string accept, string[] additionalHeaders = null)
+        public string Callout(string endPoint, HttpMethod method, string package, string contentType, string accept, Dictionary<string, string> additionalHeaders = null)
         {
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(endPoint);
-            request.Method = method.ToString();
-            request.ContentType = contentType;
-            request.Accept = accept;
-
-            request.Headers.Add("Authorization: Bearer " + DataProtector.Decrypt(sessionId));
+            HttpRequestMessage request = new HttpRequestMessage(method, endPoint);
+            request.Headers.Add("Accept", accept);
+            request.Headers.Add("Authorization", "Bearer " + InternalConnection.SessionId);
 
             if (additionalHeaders != null)
             {
-                foreach (string s in additionalHeaders)
+                foreach (string s in additionalHeaders.Keys)
                 {
-                    request.Headers.Add(s);
+                    request.Headers.Add(s, additionalHeaders[s]);
                 }
             }
 
             //everything but get can have data to send
             if (method.ToString().ToUpper() != "GET" && package.Trim().Length > 0)
             {
-                byte[] buffer = null;
-                buffer = System.Text.Encoding.UTF8.GetBytes(package);
-
-                Stream postStream = request.GetRequestStream();
-                postStream.Write(buffer, 0, buffer.Length);
-                postStream.Flush();
+                request.Content = new StringContent(package);
+                request.Content.Headers.ContentType.MediaType = contentType;
             }
 
             string returnValue = "";
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (HttpResponseMessage response = client.Send(request))
             {
                 LastStatusCode = response.StatusCode;
-                using (StreamReader resp = new StreamReader(response.GetResponseStream()))
+                using (StreamReader resp = new StreamReader(response.Content.ReadAsStream()))
                 {
                     returnValue = resp.ReadToEnd();
                 }
@@ -394,7 +392,7 @@ namespace SfdcConnect
         /// <param name="package">Payload for POST and PATCH requests, pass string.Empty if not needed</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public T Callout<T>(string endPoint, WebMethod method, string package, string[] additionalHeaders = null)
+        public T Callout<T>(string endPoint, HttpMethod method, string package, Dictionary<string, string> additionalHeaders = null)
         {
             return JsonSerializer.Deserialize<T>(Callout(endPoint, method, package, "application/json", "application/json", additionalHeaders));
         }
@@ -410,7 +408,7 @@ namespace SfdcConnect
         /// <param name="accept">Accept header</param>
         /// <param name="additionalHeaders">(optional) Additional parameters for the callout</param>
         /// <returns>Response from Salesforce</returns>
-        public T Callout<T>(string endPoint, WebMethod method, string package, string contentType, string accept, string[] additionalHeaders = null)
+        public T Callout<T>(string endPoint, HttpMethod method, string package, string contentType, string accept, Dictionary<string, string> additionalHeaders = null)
         {
             return JsonSerializer.Deserialize<T>(Callout(endPoint, method, package, contentType, accept, additionalHeaders));
         }

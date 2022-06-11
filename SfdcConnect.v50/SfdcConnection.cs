@@ -325,16 +325,18 @@ namespace SfdcConnect
             Stream postStream = webrequest.GetRequestStream();
             postStream.Write(buffer, 0, buffer.Length);
 
-            Sfdc.Rest.loginResponse returnValue = null;
+            Sfdc.Rest.LoginResult returnValue = null;
             using (HttpWebResponse response = (HttpWebResponse)webrequest.GetResponse())
             {
                 LastStatusCode = response.StatusCode;
                 using (StreamReader resp = new StreamReader(response.GetResponseStream()))
                 {
-                    returnValue = JsonSerializer.Deserialize<Sfdc.Rest.loginResponse>(resp.ReadToEnd());
+                    string respData = resp.ReadToEnd();
+                    returnValue = JsonSerializer.Deserialize<Sfdc.Rest.LoginResult>(respData);
                     this.state = ConnectionState.Open;
 
-                    LastRestLoginResponse = returnValue;
+                    LastRestLoginResponse = new Sfdc.Rest.loginResponse();
+                    LastRestLoginResponse.result = returnValue;
                     LastRestLoginResponse.result.Encrypt(DataProtector);
                 }
             }

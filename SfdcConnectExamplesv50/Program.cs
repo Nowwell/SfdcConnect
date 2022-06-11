@@ -281,8 +281,8 @@ namespace SfdcConnectExamplesv50
             {
 
                 Sfdc.Rest.loginRequest lr = new Sfdc.Rest.loginRequest();
-                lr.username = "seanfife@hotmail.com";
-                lr.password = "HH!F`@4*|YG7aFGaJFyEsTT56wTsbY71J79d";
+                lr.username = "";
+                lr.password = "";
                 SfdcSession session = new SfdcSession(SfdcConnect.Environment.Production, 54);
                 session.Open(SfdcConnect.OAuth.LoginFlow.SOAP, lr);
 
@@ -305,8 +305,8 @@ namespace SfdcConnectExamplesv50
 
 
                 //Sfdc.Soap.Partner.loginRequest lr2 = new Sfdc.Soap.Partner.loginRequest();
-                //lr2.username = "seanfife@hotmail.com";
-                //lr2.password = "HH!F`@4*|YG7aFGaJFyEsTT56wTsbY71J79d";
+                //lr2.username = "";
+                //lr2.password = "";
                 //lr2.CallOptions = new Sfdc.Soap.Partner.CallOptions();
                 //lr2.LoginScopeHeader = new Sfdc.Soap.Partner.LoginScopeHeader();
                 //SfdcSoapApi api = new SfdcSoapApi(SfdcConnect.Environment.Production, 54);
@@ -334,8 +334,8 @@ namespace SfdcConnectExamplesv50
 
 
                 //Sfdc.Rest.loginRequest lr = new Sfdc.Rest.loginRequest();
-                //lr.username = "seanfife@hotmail.com";
-                //lr.password = "HH!F`@4*|YG7aFGaJFyEsTT56wTsbY71J79d";
+                //lr.username = "";
+                //lr.password = "";
                 //SfdcSession session = new SfdcSession(SfdcConnect.Environment.Production, 54);
                 //session.Open(SfdcConnect.OAuth.LoginFlow.SOAP, lr);
 

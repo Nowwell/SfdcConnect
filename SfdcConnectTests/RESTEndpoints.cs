@@ -69,7 +69,6 @@ namespace SfdcConnectTests
         [TestMethod]
         public void TestMethod1()
         {
-
         }
     }
 }

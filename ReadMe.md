@@ -2,8 +2,8 @@
 
 This is the continuation of the original version I put up awhile ago on an account related to a previous employer: https://github.com/seanfifepep/SfdcConnect
 
-![.NET workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnet.yml/badge.svg)
-![.NET Framework workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnetframework.yml/badge.svg)
+![.NET Build workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnet.yml/badge.svg)
+![.NET Framework Build workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnetframework.yml/badge.svg)
 
 This is a collection of wrapper classes for the Salesforce Apis.  Currently implemented are:
 
@@ -22,6 +22,7 @@ Written in C#.  Some of the code for the Bulk API implementation came from anoth
 There are two version of this dll in the project, one for the .NET Framework (versions 4.XX) and for the updated .NET version 5+ and .NET Core. You can change the target framework in each respective project to target which framework you need.
 
 # Usage (.NET Framework 4.X Versions)
+![.NET Framework Build workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnetframework.yml/badge.svg)
 
 The SfdcConnection object is not intended to be used by itself, it is the base class for the other API objects that handle login and logout.
 
@@ -278,6 +279,7 @@ The custom login completed function runs after the internal login completed func
 ```
 
 # Usage (All other .NET and .NET Core Versions)
+![.NET Build workflow](https://github.com/Nowwell/SfdcConnect/actions/workflows/dotnet.yml/badge.svg)
 
 TODO
 
